@@ -1,6 +1,12 @@
 # bufbuild/buf-setup-action
 
-Hardened GitHub Action by [Chainguard](https://www.chainguard.dev).
+Hardened by [Chainguard](https://www.chainguard.dev) from the upstream action at [https://github.com/bufbuild/buf-setup-action](https://github.com/bufbuild/buf-setup-action).
+
+## Versions
+
+| Version | Tag | Upstream commit |
+|---------|-----|-----------------|
+| v1.50.0 | [`v1.50.0`](https://github.com/chainguard-actions/buf-setup-action/tree/v1.50.0) | — |
 
 ## Privacy
 
