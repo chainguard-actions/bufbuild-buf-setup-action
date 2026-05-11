@@ -1,5 +1,8 @@
 # bufbuild/buf-setup-action
 
+Install buf for use in other jobs.
+
+
 Hardened by [Chainguard](https://www.chainguard.dev) from the upstream action at [https://github.com/bufbuild/buf-setup-action](https://github.com/bufbuild/buf-setup-action).
 
 ## Versions

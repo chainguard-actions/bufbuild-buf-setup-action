@@ -2,5 +2,6 @@
   "owner": "bufbuild",
   "name": "buf-setup-action",
   "visibility": "internal",
+  "description": "Install buf for use in other jobs.\n",
   "block_publish": false
 }
