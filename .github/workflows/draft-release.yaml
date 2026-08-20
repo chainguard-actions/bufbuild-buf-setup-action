@@ -1,0 +1,54 @@
+name: Draft Release
+on:
+  pull_request:
+    types: [closed]
+  workflow_dispatch:
+    inputs:
+      version:
+        type: string
+        description: The released CLI version without 'v'. For example, 1.0.0.
+permissions:
+  contents: write
+env:
+  APP_ID: 257262
+jobs:
+  draft_release:
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'pull_request' && github.event.pull_request.merged == true && startsWith(github.event.pull_request.head.ref, 'release')) }}
+    steps:
+      - name: Validate input version
+        if: ${{ startsWith(github.event.inputs.version, 'v') }}
+        run: |
+          echo "error: version must not start with 'v'."
+          exit 1
+      - name: Set VERSION variable
+        # The head ref looks like release/v1.0.0, and we need to trim the string up to the `/v`.
+        env:
+          INPUT_VERSION: ${{ github.event.inputs.version }}
+          HEAD_REF: ${{ github.head_ref }}
+        run: |
+          RAW="${INPUT_VERSION:-$HEAD_REF}"
+          TRIMMED="${RAW##*/v}"
+          safe=$(printf '%s' "$TRIMMED" | tr -d '\n\r')
+          echo "VERSION=$safe" >> "$GITHUB_ENV"
+      - name: Get GitHub app token
+        uses: actions/create-github-app-token@d72941d797fd3113feb6b93fd0dec494b13a2547 # v1
+        id: app_token
+        with:
+          app-id: ${{ env.APP_ID }}
+          private-key: ${{ secrets.TOKEN_EXCHANGE_GH_APP_PRIVATE_KEY }}
+      - name: Checkout repository code
+        uses: actions/checkout@a37ce9120846195fa4ece8f58b268e6043cb2f26 # v3
+        with:
+          token: ${{ steps.app_token.outputs.token }}
+          fetch-depth: 0
+      - name: Sync v1 branch
+        run: |
+          git fetch origin
+          git switch v1
+          git merge origin/main
+          git push origin v1
+      - name: Release
+        run: gh release create --draft --title "v${VERSION}" "v${VERSION}"
+        env:
+          GH_TOKEN: ${{ steps.app_token.outputs.token }}

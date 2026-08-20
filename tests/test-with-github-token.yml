@@ -1,4 +1,4 @@
-name: Test buf-setup basic usage
+name: Test buf-setup with github_token
 on:
   workflow_dispatch:
 jobs:
@@ -8,6 +8,9 @@ jobs:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - id: setup-buf
         uses: .
+        with:
+          version: '1.50.0'
+          github_token: ${{ github.token }}
       - name: Assert buf is installed and on PATH
         run: |
           echo "Checking buf is available..."
@@ -16,12 +19,12 @@ jobs:
             exit 1
           fi
           echo "PASS: buf is available at $(command -v buf)"
-      - name: Assert buf version matches default
+      - name: Assert buf version is 1.50.0
         run: |
           VERSION="$(buf --version 2>&1)"
           echo "actual version: $VERSION"
-          if [ -z "$VERSION" ]; then
-            echo "FAIL: buf --version returned empty output"
+          if [ "$VERSION" != "1.50.0" ]; then
+            echo "FAIL: expected version '1.50.0' but got '$VERSION'"
             exit 1
           fi
           echo "PASS: buf version is $VERSION"

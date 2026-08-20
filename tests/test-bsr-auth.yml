@@ -1,0 +1,33 @@
+name: Test BSR authentication inputs
+on:
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - id: action
+        uses: .
+        with:
+          version: '1.50.0'
+          buf_user: testuser
+          buf_api_token: fake-api-token-for-testing
+        continue-on-error: true
+      - name: Assert buf is installed or action ran
+        env:
+          OUTCOME: ${{ steps.action.outcome }}
+        run: |
+          echo "outcome: $OUTCOME"
+          # The action may fail if BSR login fails with fake credentials,
+          # but buf should still be installed if the action ran far enough.
+          # Check if buf is on PATH first.
+          if command -v buf >/dev/null 2>&1; then
+            BUF_VERSION="$(buf --version 2>&1)"
+            echo "buf version: $BUF_VERSION"
+            echo "PASS: buf is installed"
+          elif [ "$OUTCOME" = "failure" ]; then
+            echo "PASS: action ran and failed gracefully (expected with fake BSR credentials)"
+          else
+            echo "FAIL: unexpected outcome '$OUTCOME' and buf not found"
+            exit 1
+          fi

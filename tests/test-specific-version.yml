@@ -1,4 +1,4 @@
-name: Test buf-setup basic usage
+name: Test buf-setup specific version
 on:
   workflow_dispatch:
 jobs:
@@ -8,7 +8,9 @@ jobs:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - id: setup-buf
         uses: .
-      - name: Assert buf is installed and on PATH
+        with:
+          version: '1.47.2'
+      - name: Assert buf is installed
         run: |
           echo "Checking buf is available..."
           if ! command -v buf >/dev/null 2>&1; then
@@ -16,12 +18,12 @@ jobs:
             exit 1
           fi
           echo "PASS: buf is available at $(command -v buf)"
-      - name: Assert buf version matches default
+      - name: Assert buf version is 1.47.2
         run: |
           VERSION="$(buf --version 2>&1)"
           echo "actual version: $VERSION"
-          if [ -z "$VERSION" ]; then
-            echo "FAIL: buf --version returned empty output"
+          if [ "$VERSION" != "1.47.2" ]; then
+            echo "FAIL: expected version '1.47.2' but got '$VERSION'"
             exit 1
           fi
           echo "PASS: buf version is $VERSION"
